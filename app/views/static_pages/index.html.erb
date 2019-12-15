@@ -1,0 +1,37 @@
+<div id="display_name"></div>
+<img id="bitmoji"/>
+<hr/>
+<div id="my-login-button-target"></div>
+<script>
+  // Load the SDK asynchronously
+  (function (d, s, id) {
+    var js, sjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "https://sdk.snapkit.com/js/v1/login.js";
+    sjs.parentNode.insertBefore(js, sjs);
+  }(document, 'script', 'loginkit-sdk'));
+
+
+  window.snapKitInit = function () {
+    var loginButtonIconId = 'my-login-button-target';
+    // Mount Login Button
+    snap.loginkit.mountButton(loginButtonIconId, {
+      clientId: '<%= Rails.application.credentials.fetch(:snapchat_dev_client_id) %>',
+      redirectURI: 'http://localhost:3000/',
+      scopeList: [
+        'user.display_name',
+        'user.bitmoji.avatar'
+      ],
+      handleResponseCallback: function() {
+        snap.loginkit.fetchUserInfo().then(function(result) {
+          console.log('User info:', result.data.me);
+          document.getElementById("display_name").innerHTML = result.data.me.displayName;
+          document.getElementById("bitmoji").src = result.data.me.bitmoji.avatar;
+        }, function(err) {
+          console.log(err); // Error
+        });
+      },
+    });
+  };
+</script>
